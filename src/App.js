@@ -16,6 +16,31 @@ class App extends Component {
     filter: "",
   };
 
+  componentDidMount() {
+    const contacts = localStorage.getItem("contacts");
+
+    console.log(contacts);
+
+    const parsedContacts = JSON.parse(contacts);
+
+    if (parsedContacts) {
+      this.setState({ contacts: parsedContacts });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    //проверяем заполненность поля иначе зациклится компонент
+
+    const nextContacts = this.state.contacts;
+    const prevContacts = prevState.contacts;
+
+    if (nextContacts !== prevContacts) {
+      localStorage.setItem("contacts", JSON.stringify(nextContacts));
+    }
+    console.log(prevState);
+    console.log(this.state);
+  }
+
   changeFilter = (e) => {
     this.setState({ filter: e.currentTarget.value });
   };
@@ -55,7 +80,9 @@ class App extends Component {
         <h1 className="title">Phonebook</h1>
         <Form onSubmit={this.addContact} />
         <h2 className="title">Contacts</h2>
-        <Filter value={filter} onChange={this.changeFilter} />
+        {this.state.contacts.length === 0 ? null : (
+          <Filter value={filter} onChange={this.changeFilter} />
+        )}
         <ContactList contacts={visibleContacts} onChange={this.deleteContact} />
       </section>
     );
